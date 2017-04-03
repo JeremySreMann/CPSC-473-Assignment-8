@@ -2,7 +2,8 @@
     'use strict';
     var FORM_SELECTOR = '[data-coffee-order="form"]';
     var CHECKLIST_SELECTOR = '[data-coffee-order="checklist"]';
-    var SERVER_URL =  'http://coffeerun-v2-rest-api.herokuapp.com/api/coffeeorders';
+    //var SERVER_URL = 'http://coffeerun.herokuapp.com/api/coffeeorders';
+    var SERVER_URL = 'http://coffeerun-v2-rest-api.herokuapp.com/api/coffeeorders';
     //var SERVER_URL = 'http://localhost:3002/coffeeorders';
     var App = window.App;
     var Truck = App.Truck;
@@ -12,7 +13,7 @@
     var Validation = App.Validation;
     var CheckList = App.CheckList;
     var remoteDS = new RemoteDataStore(SERVER_URL);
-    var myTruck = new Truck('ncc-1701', remoteDS); //old code: new DataStore()
+    var myTruck = new Truck('ncc-1701', new DataStore); 
     window.myTruck = myTruck;
     var checkList = new CheckList(CHECKLIST_SELECTOR);
     checkList.addClickHandler(myTruck.deliverOrder.bind(myTruck));
@@ -22,12 +23,20 @@
     //formHandler.addSubmitHandler(myTruck.createOrder.bind(myTruck));
     //console.log(formHandler);
 
+    //function() {
+  //      alert('Server unreachable. Try again later.');
+  //  }
+
     formHandler.addSubmitHandler(function(data) {
-        myTruck.createOrder.call(myTruck, data);
-        checkList.addRow.call(checkList, data);
+        return myTruck.createOrder.call(myTruck, data)
+            .then(function() {
+                checkList.addRow.call(checkList, data);
+            });
     });
 
     formHandler.addInputHandler(Validation.isCompanyEmail);
     formHandler.addDecafHandler(Validation.isDecaf);
+
+    myTruck.printOrders(checkList.addRow.bind(checkList));
 
 })(window);
