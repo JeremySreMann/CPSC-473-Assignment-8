@@ -48,6 +48,23 @@
             var message = '';
             if (fn(emailAddress)) {
                 event.target.setCustomValidity('');
+
+                //email validation
+                var SERVER_URL = 'http://localhost:3002/coffeeorders';
+                $.get(SERVER_URL, function(serverResponse) {
+                    var emails = [];
+                    for (var i in serverResponse) {
+                        emails.push(serverResponse[i].emailAddress);
+                    }
+
+                    if (emails.indexOf(emailAddress) != -1) {
+                        message = 'This email has already been registered.';
+                        event.target.setCustomValidity(message);
+                    } else {
+                        event.target.setCustomValidity('');
+                    }
+                });
+
             } else {
                 message = emailAddress + ' is not an authorized email address!';
                 event.target.setCustomValidity(message);
